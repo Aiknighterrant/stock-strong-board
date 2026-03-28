@@ -1,0 +1,41 @@
+=== 快速推送命令 ===
+
+请将 YOUR_GITHUB_TOKEN 替换为您的实际token
+
+方法A：使用脚本（推荐）
+--------------------------------
+cd /workspace/projects/workspace/skills/stock-strong-board
+./push_to_github.sh YOUR_GITHUB_TOKEN
+
+方法B：手动命令
+--------------------------------
+cd /workspace/projects/workspace/skills/stock-strong-board
+git remote add origin https://YOUR_GITHUB_TOKEN@github.com/Aiknighterrant/stock-strong-board.git
+git push -u origin main
+
+方法C：使用GitHub CLI（如果已安装）
+--------------------------------
+cd /workspace/projects/workspace/skills/stock-strong-board
+gh repo create stock-strong-board --public --description "沪深A股短线强势封板股分析技能" --source=. --remote=origin --push
+
+=== 如何获取GitHub Token ===
+1. 访问: https://github.com/settings/tokens
+2. 点击: "Generate new token"
+3. 选择: "classic" token
+4. 权限: 勾选 "repo" (完全控制仓库)
+5. 生成并复制token (格式: ghp_xxxxxxxxxxxxxxxxxxxx)
+
+=== 验证推送成功 ===
+访问: https://github.com/Aiknighterrant/stock-strong-board
+应该看到15个文件，包括：
+- README.md
+- SKILL.md
+- scripts/ (5个Python脚本)
+- references/ (3个文档)
+- 其他配置文件
+
+=== 如果遇到问题 ===
+1. 检查token权限是否正确
+2. 确保仓库已创建
+3. 检查网络连接
+4. 查看详细错误信息
