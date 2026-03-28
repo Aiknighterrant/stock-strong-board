@@ -1,0 +1,55 @@
+name: Simple Skill Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install minimal dependencies
+      run: |
+        python -m pip install --upgrade pip
+        # 只安装最必要的依赖
+        pip install pandas numpy requests
+    
+    - name: Basic skill validation
+      run: |
+        echo "=== 基本技能验证 ==="
+        echo ""
+        
+        # 1. 检查必需文件
+        echo "1. 检查必需文件:"
+        [ -f SKILL.md ] && echo "  ✓ SKILL.md" || echo "  ✗ SKILL.md missing"
+        [ -f README.md ] && echo "  ✓ README.md" || echo "  ✗ README.md missing"
+        [ -f requirements.txt ] && echo "  ✓ requirements.txt" || echo "  ✗ requirements.txt missing"
+        [ -f scripts/main.py ] && echo "  ✓ scripts/main.py" || echo "  ✗ scripts/main.py missing"
+        
+        echo ""
+        echo "2. 测试主脚本:"
+        # 测试帮助命令
+        python scripts/main.py --help && echo "  ✓ --help 命令正常"
+        
+        echo ""
+        echo "3. 测试模拟数据模式:"
+        # 测试模拟数据
+        python scripts/main.py --date today --test --output json --limit 1 && echo "  ✓ 模拟数据模式正常"
+        
+        echo ""
+        echo "=== 验证完成 ==="
+    
+    - name: List all files
+      run: |
+        echo "技能包含的文件:"
+        find . -type f -not -path "./.git/*" | sort | head -20
