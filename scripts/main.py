@@ -13,8 +13,35 @@ import pandas as pd
 # 添加脚本目录到路径
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from fetch_stock_data import fetch_limit_up_stocks
-from filter_stocks import filter_by_board_strength, filter_by_turnover
+try:
+    # 使用优化版数据获取模块
+    from fetch_data_optimized import fetch_limit_up_stocks_optimized
+    USE_OPTIMIZED_MODULE = True
+except ImportError:
+    USE_OPTIMIZED_MODULE = False
+    try:
+        # 备用：使用 akshare 数据源
+        from fetch_akshare_data import fetch_limit_up_stocks_akshare as fetch_limit_up_stocks
+        print("✅ 使用 akshare 数据源")
+    except ImportError:
+        try:
+            # 备用：使用实时数据获取模块
+            from fetch_stock_data_real import fetch_limit_up_stocks_real as fetch_limit_up_stocks
+            print("✅ 使用实时数据获取模块")
+        except ImportError:
+            # 如果实时模块不存在，使用原来的模块
+            from fetch_stock_data import fetch_limit_up_stocks
+            print("⚠️  使用模拟数据获取模块")
+
+try:
+    # 使用优化版筛选模块
+    from filter_stocks_optimized import filter_by_board_strength, filter_by_turnover
+    USE_OPTIMIZED_FILTER = True
+except ImportError:
+    # 使用原版筛选模块
+    from filter_stocks import filter_by_board_strength, filter_by_turnover
+    USE_OPTIMIZED_FILTER = False
+
 from analyze_sectors import analyze_sector_strength, filter_by_sector
 from utils import format_output, save_results, validate_date
 
@@ -90,8 +117,17 @@ def main():
             # 测试模式使用模拟数据
             stocks = get_test_data()
             print(f"  获取到 {len(stocks)} 只涨停股票（测试数据）")
+            data_source = "测试数据"
         else:
-            stocks = fetch_limit_up_stocks(analysis_date, debug=args.debug)
+            if USE_OPTIMIZED_MODULE:
+                # 使用优化版模块
+                stocks, data_source = fetch_limit_up_stocks_optimized(analysis_date, debug=args.debug)
+                print(f"  数据源: {data_source}")
+            else:
+                # 使用旧版模块
+                stocks = fetch_limit_up_stocks(analysis_date, debug=args.debug)
+                data_source = "旧版数据源"
+            
             if not stocks:
                 print("  错误: 未能获取涨停股票数据")
                 sys.exit(1)
